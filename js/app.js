@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // 2. Pages registrieren
   App.pages = {
+    teamSelection: document.getElementById("teamSelectionPage"),
     selection: document.getElementById("playerSelectionPage"),
     stats: document.getElementById("statsPage"),
     torbild: document.getElementById("torbildPage"),
@@ -20,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
   App.storage.load();
   
   // 4. Alle Module initialisieren
+  App.teamSelection.init();
   App.timer.init();
   App.csvHandler.init();
   App.playerSelection.init();
@@ -48,6 +50,10 @@ document.addEventListener("DOMContentLoaded", () => {
   
   document.getElementById("backFromGoalValueBtn")?.addEventListener("click", () => {
     App.showPage("stats");
+  });
+  
+  document.getElementById("backToTeamSelectionBtn")?.addEventListener("click", () => {
+    App.showPage("teamSelection");
   });
   
   document.getElementById("torbildBtn")?.addEventListener("click", () => {
@@ -84,16 +90,30 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         e.stopPropagation();
       }
+      
+      if (btn.id === "backToTeamSelectionBtn") {
+        App.showPage("teamSelection");
+        e.preventDefault();
+        e.stopPropagation();
+      }
     } catch (err) {
       console.warn("Back button delegation failed:", err);
     }
   }, true);
   
   // 7. Initiale Seite anzeigen
+  const currentTeam = App.teamSelection.getCurrentTeam();
   const lastPage = App.storage.getCurrentPage();
-  const initialPage = lastPage === "selection" || !App.data.selectedPlayers.length 
-    ? "selection" 
-    : lastPage;
+  
+  // Wenn kein Team ausgewählt ist, zur Teamauswahl
+  let initialPage;
+  if (!currentTeam) {
+    initialPage = "teamSelection";
+  } else if (lastPage === "selection" || !App.data.selectedPlayers.length) {
+    initialPage = "selection";
+  } else {
+    initialPage = lastPage;
+  }
   
   App.showPage(initialPage);
   
@@ -101,6 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.addEventListener("beforeunload", () => {
     try {
       App.storage.saveAll();
+      App.teamSelection.saveTeams();
       localStorage.setItem("timerSeconds", String(App.timer.seconds));
       if (App.goalValue) {
         localStorage.setItem("goalValueOpponents", JSON.stringify(App.goalValue.getOpponents()));
