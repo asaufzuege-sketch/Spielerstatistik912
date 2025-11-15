@@ -815,7 +815,7 @@ th .sort-arrow { font-size: 0.7rem; color: #ddd }
 }
 
 .edit-team-btn {
-  background: #44bb91;
+  background: #666;
   color: white;
   border: none;
   padding: 8px 12px;
@@ -826,7 +826,7 @@ th .sort-arrow { font-size: 0.7rem; color: #ddd }
 }
 
 .edit-team-btn:hover {
-  background: #36a67d;
+  background: #777;
 }
 
 /* Modal Styles */
@@ -890,6 +890,7 @@ th .sort-arrow { font-size: 0.7rem; color: #ddd }
   font-size: 1rem;
   font-weight: 600;
   transition: background 0.3s ease;
+  min-height: 44px; /* Gleiche Höhe für beide Buttons */
 }
 
 .cancel-btn {
