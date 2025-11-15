@@ -741,3 +741,177 @@ th .sort-arrow { font-size: 0.7rem; color: #ddd }
   border-top: 2px solid #333;
   padding: 8px 6px;
 }
+/* Teamauswahl Styles */
+.team-selection-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.team-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.team-slot {
+  background: #1a1a1a;
+  border: 2px solid #333;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: border-color 0.3s ease;
+}
+
+.team-slot:hover {
+  border-color: #44bb91;
+}
+
+.team-display h3 {
+  margin: 0 0 8px 0;
+  color: #44bb91;
+  font-size: 1.2rem;
+}
+
+.team-name {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.team-btn {
+  background: #44bb91;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-right: 10px;
+}
+
+.team-btn:hover {
+  background: #36a67d;
+}
+
+.team-btn.active-team {
+  background: #ff6b35;
+}
+
+.team-btn.active-team:hover {
+  background: #e55a2b;
+}
+
+.edit-team-btn {
+  background: #666;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s ease;
+}
+
+.edit-team-btn:hover {
+  background: #777;
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #1a1a1a;
+  border: 2px solid #44bb91;
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 400px;
+  width: 90%;
+}
+
+.modal-content h3 {
+  margin: 0 0 20px 0;
+  color: #44bb91;
+  text-align: center;
+}
+
+#teamNameInput {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #333;
+  border-radius: 8px;
+  background: #2a2a2a;
+  color: white;
+  font-size: 1rem;
+  margin-bottom: 20px;
+}
+
+#teamNameInput:focus {
+  outline: none;
+  border-color: #44bb91;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.cancel-btn {
+  background: #666;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.cancel-btn:hover {
+  background: #777;
+}
+
+/* Current Team Info */
+.current-team-info {
+  text-align: center;
+  margin: 10px 0 20px 0;
+  color: #ccc;
+  font-size: 0.95rem;
+}
+
+.current-team-info strong {
+  color: #44bb91;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .team-slot {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+  
+  .team-btn {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+  
+  .modal-content {
+    margin: 20px;
+  }
+}
