@@ -10,10 +10,67 @@
 </head>
 <body>
 
+  <!-- TEAMAUSWAHL SEITE (NEUE ERSTE SEITE) -->
+  <div id="teamSelectionPage" class="page">
+    <h1>TEAM AUSWAHL</h1>
+    <p class="center-text">Wählen Sie ein Team aus oder erstellen Sie ein neues Team</p>
+    
+    <div class="team-selection-container">
+      <div class="team-slots">
+        <div class="team-slot" id="teamSlot1">
+          <div class="team-display" id="teamDisplay1">
+            <h3>Team 1</h3>
+            <span class="team-name" id="teamName1">Neues Team</span>
+          </div>
+          <button class="team-btn" id="teamBtn1">Team 1 auswählen</button>
+          <button class="edit-team-btn" id="editBtn1">✏️</button>
+        </div>
+        
+        <div class="team-slot" id="teamSlot2">
+          <div class="team-display" id="teamDisplay2">
+            <h3>Team 2</h3>
+            <span class="team-name" id="teamName2">Neues Team</span>
+          </div>
+          <button class="team-btn" id="teamBtn2">Team 2 auswählen</button>
+          <button class="edit-team-btn" id="editBtn2">✏️</button>
+        </div>
+        
+        <div class="team-slot" id="teamSlot3">
+          <div class="team-display" id="teamDisplay3">
+            <h3>Team 3</h3>
+            <span class="team-name" id="teamName3">Neues Team</span>
+          </div>
+          <button class="team-btn" id="teamBtn3">Team 3 auswählen</button>
+          <button class="edit-team-btn" id="editBtn3">✏️</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Team Name Edit Modal -->
+    <div id="teamEditModal" class="modal" style="display: none;">
+      <div class="modal-content">
+        <h3>Teamname bearbeiten</h3>
+        <input type="text" id="teamNameInput" placeholder="Teamname eingeben" maxlength="30" />
+        <div class="modal-buttons">
+          <button id="saveTeamNameBtn" class="confirm-btn">Speichern</button>
+          <button id="cancelTeamEditBtn" class="cancel-btn">Abbrechen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- SPIELERAUSWAHL -->
-  <div id="playerSelectionPage" class="page">
+  <div id="playerSelectionPage" class="page" style="display:none;">
+    <div class="page-top">
+      <div class="top-bar">
+        <button id="backToTeamSelectionBtn" class="top-btn back-btn">← Zur Teamauswahl</button>
+      </div>
+    </div>
     <h1>PLAYER SELECTION</h1>
     <p class="center-text">Wähle die Spieler, die in der Tabelle angezeigt werden sollen</p>
+    <div class="current-team-info">
+      <span>Aktuelles Team: <strong id="currentTeamDisplay"></strong></span>
+    </div>
     <ul id="playerList" class="player-list"></ul>
     <button id="confirmSelection" class="confirm-btn">Bestätigen</button>
   </div>
@@ -31,11 +88,13 @@
         <button id="seasonMapBtn" class="top-btn season-highlight">Season Map</button>
         <button id="exportBtn" class="top-btn export-csv">Export CSV</button>
         <button id="resetBtn" class="top-btn danger-btn reset-btn">Reset</button>
-        <!-- AOD / Display Always On Button entfernt -->
       </div>
     </div>
 
     <h1>GAME DATA</h1>
+    <div class="current-team-info">
+      <span>Team: <strong id="statsTeamDisplay"></strong></span>
+    </div>
     <div id="statsScrollContainer">
       <div id="statsContainer"></div>
     </div>
@@ -196,6 +255,7 @@
   <script src="js/utils/marker-handler.js"></script>
   <script src="js/modules/timer.js"></script>
   <script src="js/modules/csv-handler.js"></script>
+  <script src="js/modules/team-selection.js"></script>
   <script src="js/modules/player-selection.js"></script>
   <script src="js/modules/stats-table.js"></script>
   <script src="js/modules/season-table.js"></script>
@@ -203,8 +263,6 @@
   <script src="js/modules/season-map.js"></script>
   <script src="js/modules/goal-value.js"></script>
   <script src="js/app.js"></script>
-  <!-- WakeLock Script entfernt -->
-  <!-- <script src="enhancements-wakelock.js"></script> -->
   <script src="season_table_ui_patch.js"></script>
   <script src="season_map_momentum.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
