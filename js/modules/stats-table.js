@@ -6,10 +6,10 @@ App.statsTable = {
     draggedRow: null,
     longPressTimer: null,
     startY: 0,
-    startX: 0,
-    placeholder: null,
-    originalIndex: -1,
-    isLongPress: false
+    currentY: 0,
+    initialMouseY: 0,
+    yOffset: 0,
+    draggedElement: null
   },
   
   init() {
@@ -44,24 +44,23 @@ App.statsTable = {
     
     // Body
     const tbody = document.createElement("tbody");
-    tbody.id = "stats-tbody"; // ID für Drag & Drop
+    tbody.id = "stats-tbody";
     
     App.data.selectedPlayers.forEach((p, idx) => {
       const tr = document.createElement("tr");
       tr.className = (idx % 2 === 0 ? "even-row" : "odd-row");
       tr.dataset.player = p.name;
       tr.dataset.playerIndex = idx;
-      tr.draggable = false; // Standardmäßig nicht draggable
       
       // Nummer
       const numTd = document.createElement("td");
       numTd.innerHTML = `<strong>${App.helpers.escapeHtml(p.num || "-")}</strong>`;
       tr.appendChild(numTd);
       
-      // Name (clickbar für Timer)
+      // Name (clickbar für Timer + Drag Handle)
       const nameTd = document.createElement("td");
-      nameTd.style.cssText = "text-align:left;padding-left:12px;cursor:pointer;white-space:nowrap;";
-      nameTd.innerHTML = `<strong>${App.helpers.escapeHtml(p.name)}</strong>`;
+      nameTd.style.cssText = "text-align:left;padding-left:12px;cursor:pointer;white-space:nowrap;position:relative;";
+      nameTd.innerHTML = `<span class="drag-handle" style="color:#44bb91;margin-right:8px;cursor:grab;">⋮⋮</span><strong>${App.helpers.escapeHtml(p.name)}</strong>`;
       tr.appendChild(nameTd);
       
       // Kategorien
@@ -85,11 +84,12 @@ App.statsTable = {
       timeTd.dataset.player = p.name;
       tr.appendChild(timeTd);
       
-      // Timer Toggle auf Name-Click
+      // Timer Toggle auf Name-Click (aber nicht auf drag handle)
       this.attachTimerToggle(nameTd, tr, timeTd, p.name);
       
-      // Drag & Drop Handler
-      this.attachDragHandlers(tr);
+      // Drag Handlers nur auf das Drag Handle
+      const dragHandle = nameTd.querySelector('.drag-handle');
+      this.attachDragHandlers(tr, dragHandle);
       
       tbody.appendChild(tr);
     });
@@ -133,231 +133,183 @@ App.statsTable = {
     this.updateIceTimeColors();
   },
   
-  attachDragHandlers(tr) {
-    // Mouse Events
-    tr.addEventListener('mousedown', (e) => this.handleStart(e, tr));
-    tr.addEventListener('mousemove', (e) => this.handleMove(e));
-    tr.addEventListener('mouseup', (e) => this.handleEnd(e));
-    tr.addEventListener('mouseleave', (e) => this.handleEnd(e));
+  attachDragHandlers(row, dragHandle) {
+    if (!dragHandle) return;
     
-    // Touch Events
-    tr.addEventListener('touchstart', (e) => this.handleStart(e, tr), { passive: false });
-    tr.addEventListener('touchmove', (e) => this.handleMove(e), { passive: false });
-    tr.addEventListener('touchend', (e) => this.handleEnd(e), { passive: false });
-    tr.addEventListener('touchcancel', (e) => this.handleEnd(e), { passive: false });
+    let longPressTimer = null;
+    let isDragging = false;
+    let startY = 0;
+    let hasMoved = false;
     
-    // Drag Events
-    tr.addEventListener('dragstart', (e) => this.handleDragStart(e));
-    tr.addEventListener('dragover', (e) => this.handleDragOver(e));
-    tr.addEventListener('drop', (e) => this.handleDrop(e));
-    tr.addEventListener('dragend', (e) => this.handleDragEnd(e));
-  },
-  
-  handleStart(e, tr) {
-    // Nur wenn nicht schon dragging oder auf total-row
-    if (this.dragState.isDragging || tr.classList.contains('total-row')) return;
-    
-    // Position für Long Press Detection
-    const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-    const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-    
-    this.dragState.startX = clientX;
-    this.dragState.startY = clientY;
-    this.dragState.isLongPress = false;
-    
-    // Long Press Timer
-    this.dragState.longPressTimer = setTimeout(() => {
-      this.dragState.isLongPress = true;
-      this.startDrag(tr);
-    }, 800); // 800ms für Long Press
-    
-    // Event delegation für Cleanup
-    this.dragState.draggedRow = tr;
-  },
-  
-  handleMove(e) {
-    if (!this.dragState.longPressTimer && !this.dragState.isDragging) return;
-    
-    const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-    const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-    
-    // Movement Detection - bei Bewegung Long Press abbrechen
-    const moveThreshold = 10;
-    const deltaX = Math.abs(clientX - this.dragState.startX);
-    const deltaY = Math.abs(clientY - this.dragState.startY);
-    
-    if ((deltaX > moveThreshold || deltaY > moveThreshold) && this.dragState.longPressTimer) {
-      clearTimeout(this.dragState.longPressTimer);
-      this.dragState.longPressTimer = null;
-    }
-    
-    // Dragging Logic
-    if (this.dragState.isDragging && this.dragState.draggedRow) {
-      e.preventDefault();
+    const startDrag = (e) => {
+      if (isDragging) return;
       
-      const tbody = document.getElementById('stats-tbody');
-      if (!tbody) return;
+      const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+      startY = clientY;
+      hasMoved = false;
       
-      // Find target row
-      const rows = Array.from(tbody.children).filter(r => !r.classList.contains('total-row'));
-      const targetRow = this.getTargetRow(rows, clientY);
+      longPressTimer = setTimeout(() => {
+        if (!hasMoved && !isDragging) {
+          this.startDragging(row);
+          isDragging = true;
+          dragHandle.style.cursor = 'grabbing';
+          
+          // Haptic feedback
+          if (navigator.vibrate) {
+            navigator.vibrate(100);
+          }
+          
+          console.log('Long press detected - drag started for:', row.dataset.player);
+        }
+      }, 600); // 600ms für Long Press
+    };
+    
+    const moveDrag = (e) => {
+      const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+      const deltaY = Math.abs(clientY - startY);
       
-      if (targetRow && targetRow !== this.dragState.draggedRow && targetRow !== this.dragState.placeholder) {
-        const targetIndex = Array.from(tbody.children).indexOf(targetRow);
-        const placeholderIndex = Array.from(tbody.children).indexOf(this.dragState.placeholder);
-        
-        if (targetIndex < placeholderIndex) {
-          tbody.insertBefore(this.dragState.placeholder, targetRow);
-        } else {
-          tbody.insertBefore(this.dragState.placeholder, targetRow.nextSibling);
+      if (deltaY > 10) {
+        hasMoved = true;
+        if (longPressTimer) {
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
         }
       }
-    }
+      
+      if (isDragging) {
+        e.preventDefault();
+        this.handleDragMove(clientY);
+      }
+    };
+    
+    const endDrag = (e) => {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+      
+      if (isDragging) {
+        this.endDragging();
+        isDragging = false;
+        dragHandle.style.cursor = 'grab';
+      }
+      
+      hasMoved = false;
+    };
+    
+    // Mouse events
+    dragHandle.addEventListener('mousedown', startDrag);
+    document.addEventListener('mousemove', moveDrag);
+    document.addEventListener('mouseup', endDrag);
+    
+    // Touch events
+    dragHandle.addEventListener('touchstart', startDrag, { passive: false });
+    document.addEventListener('touchmove', moveDrag, { passive: false });
+    document.addEventListener('touchend', endDrag, { passive: false });
+    dragHandle.addEventListener('touchcancel', endDrag, { passive: false });
   },
   
-  handleEnd(e) {
-    // Clear Long Press Timer
-    if (this.dragState.longPressTimer) {
-      clearTimeout(this.dragState.longPressTimer);
-      this.dragState.longPressTimer = null;
-    }
-    
-    // Finish Drag if dragging
-    if (this.dragState.isDragging) {
-      this.endDrag();
-    }
-    
-    this.dragState.draggedRow = null;
-  },
-  
-  startDrag(tr) {
+  startDragging(row) {
     this.dragState.isDragging = true;
-    this.dragState.draggedRow = tr;
-    this.dragState.originalIndex = parseInt(tr.dataset.playerIndex);
+    this.dragState.draggedRow = row;
     
     // Visual feedback
-    tr.style.opacity = '0.5';
-    tr.style.transform = 'scale(1.02)';
-    tr.style.zIndex = '1000';
-    tr.style.transition = 'transform 0.2s ease';
-    tr.classList.add('dragging');
+    row.style.backgroundColor = 'rgba(68, 187, 145, 0.3)';
+    row.style.transform = 'scale(1.02)';
+    row.style.zIndex = '1000';
+    row.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
+    row.style.transition = 'transform 0.2s ease';
     
-    // Create placeholder
-    this.dragState.placeholder = tr.cloneNode(true);
-    this.dragState.placeholder.style.opacity = '0.3';
-    this.dragState.placeholder.style.backgroundColor = '#44bb91';
-    this.dragState.placeholder.classList.add('drag-placeholder');
-    this.dragState.placeholder.innerHTML = tr.innerHTML.replace(/./g, '&nbsp;'); // Empty content but keep structure
-    
-    // Insert placeholder
-    tr.parentNode.insertBefore(this.dragState.placeholder, tr.nextSibling);
-    
-    // Enable HTML5 drag
-    tr.draggable = true;
-    
-    // Haptic feedback (if supported)
-    if (navigator.vibrate) {
-      navigator.vibrate(50);
-    }
-    
-    console.log('Drag started for:', tr.dataset.player);
+    console.log('Dragging started for player:', row.dataset.player);
   },
   
-  endDrag() {
+  handleDragMove(clientY) {
+    if (!this.dragState.isDragging) return;
+    
+    const tbody = document.getElementById('stats-tbody');
+    if (!tbody) return;
+    
+    const rows = Array.from(tbody.children).filter(r => 
+      !r.classList.contains('total-row') && r !== this.dragState.draggedRow
+    );
+    
+    let targetRow = null;
+    let targetIndex = -1;
+    
+    for (let i = 0; i < rows.length; i++) {
+      const rect = rows[i].getBoundingClientRect();
+      const rowCenter = rect.top + rect.height / 2;
+      
+      if (clientY < rowCenter) {
+        targetRow = rows[i];
+        targetIndex = i;
+        break;
+      }
+    }
+    
+    if (targetRow) {
+      tbody.insertBefore(this.dragState.draggedRow, targetRow);
+    } else {
+      // Insert at end (before total row)
+      const totalRow = tbody.querySelector('.total-row');
+      tbody.insertBefore(this.dragState.draggedRow, totalRow);
+    }
+  },
+  
+  endDragging() {
     if (!this.dragState.isDragging || !this.dragState.draggedRow) return;
     
-    const tr = this.dragState.draggedRow;
-    const placeholder = this.dragState.placeholder;
+    const row = this.dragState.draggedRow;
+    
+    // Remove visual feedback
+    row.style.backgroundColor = '';
+    row.style.transform = '';
+    row.style.zIndex = '';
+    row.style.boxShadow = '';
+    row.style.transition = '';
     
     // Get new position
     const tbody = document.getElementById('stats-tbody');
-    const newIndex = Array.from(tbody.children).indexOf(placeholder);
+    const allRows = Array.from(tbody.children);
+    const newIndex = allRows.indexOf(row);
+    const oldIndex = parseInt(row.dataset.playerIndex);
     
-    // Restore visual state
-    tr.style.opacity = '';
-    tr.style.transform = '';
-    tr.style.zIndex = '';
-    tr.style.transition = '';
-    tr.draggable = false;
-    tr.classList.remove('dragging');
-    
-    // Replace placeholder with original row
-    if (placeholder && placeholder.parentNode) {
-      placeholder.parentNode.replaceChild(tr, placeholder);
-    }
-    
-    // Update player order if position changed
-    if (newIndex !== -1 && newIndex !== this.dragState.originalIndex) {
-      this.updatePlayerOrder(this.dragState.originalIndex, newIndex);
+    // Update player order
+    if (newIndex !== -1 && newIndex !== oldIndex) {
+      this.updatePlayerOrder(oldIndex, newIndex);
     }
     
     // Reset state
     this.dragState.isDragging = false;
     this.dragState.draggedRow = null;
-    this.dragState.placeholder = null;
-    this.dragState.originalIndex = -1;
     
-    console.log('Drag ended');
-  },
-  
-  getTargetRow(rows, clientY) {
-    return rows.find(row => {
-      const rect = row.getBoundingClientRect();
-      return clientY >= rect.top && clientY <= rect.bottom;
-    });
+    console.log('Dragging ended');
   },
   
   updatePlayerOrder(oldIndex, newIndex) {
-    // Adjust for total row
-    const totalRowCount = 1;
-    const realNewIndex = newIndex >= App.data.selectedPlayers.length ? App.data.selectedPlayers.length - 1 : newIndex;
-    
-    if (realNewIndex < 0 || realNewIndex >= App.data.selectedPlayers.length) return;
+    if (oldIndex < 0 || oldIndex >= App.data.selectedPlayers.length) return;
+    if (newIndex < 0 || newIndex >= App.data.selectedPlayers.length) return;
     
     // Move player in array
     const player = App.data.selectedPlayers.splice(oldIndex, 1)[0];
-    App.data.selectedPlayers.splice(realNewIndex, 0, player);
+    App.data.selectedPlayers.splice(newIndex, 0, player);
+    
+    console.log(`Player "${player.name}" moved from position ${oldIndex} to ${newIndex}`);
     
     // Save to localStorage
     App.storage.saveSelectedPlayers();
     
-    // Re-render table with new order
+    // Re-render to update indices and alternating row colors
     this.render();
-    
-    console.log(`Player moved from ${oldIndex} to ${realNewIndex}`);
-  },
-  
-  // HTML5 Drag & Drop handlers (backup)
-  handleDragStart(e) {
-    if (!this.dragState.isLongPress) {
-      e.preventDefault();
-      return;
-    }
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', e.target.outerHTML);
-  },
-  
-  handleDragOver(e) {
-    if (this.dragState.isDragging) {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-    }
-  },
-  
-  handleDrop(e) {
-    if (this.dragState.isDragging) {
-      e.preventDefault();
-    }
-  },
-  
-  handleDragEnd(e) {
-    this.endDrag();
   },
   
   attachTimerToggle(nameTd, tr, timeTd, playerName) {
     nameTd.addEventListener("click", (e) => {
+      // Ignore clicks on drag handle
+      if (e.target.classList.contains('drag-handle')) return;
+      
       // Prevent timer toggle during drag
-      if (this.dragState.isDragging || this.dragState.isLongPress) return;
+      if (this.dragState.isDragging) return;
       
       if (App.data.activeTimers[playerName]) {
         // Timer stoppen
@@ -389,7 +341,7 @@ App.statsTable = {
       // Single Click: +1
       td.addEventListener("click", (e) => {
         // Prevent value change during drag
-        if (this.dragState.isDragging || this.dragState.isLongPress) {
+        if (this.dragState.isDragging) {
           e.preventDefault();
           return;
         }
@@ -406,7 +358,7 @@ App.statsTable = {
         e.preventDefault();
         
         // Prevent value change during drag
-        if (this.dragState.isDragging || this.dragState.isLongPress) return;
+        if (this.dragState.isDragging) return;
         
         if (clickTimeout) {
           clearTimeout(clickTimeout);
