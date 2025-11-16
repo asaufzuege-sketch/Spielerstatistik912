@@ -18,8 +18,7 @@ const App = {
       { num: 18, name: "Livio Berner" }, { num: 19, name: "Robin Strasser" },
       { num: 21, name: "Marlon Kreyenbühl" }, { num: 22, name: "Martin Lana" },
       { num: 23, name: "Manuel Isler" }, { num: 24, name: "Moris Hürlimann" },
-      { num: "", name: "Levi Baumann" }, { num: "", name: "Corsin Blapp" },
-      { num: "", name: "Lenny Zimmermann" }, { num: "", name: "Luke Böhmichen" },
+      { num: "", name: "Luke Böhmichen" },
       { num: "", name: "Livio Weissen" }, { num: "", name: "Raul Wütrich" },
       { num: "", name: "Marco Senn" }
     ],

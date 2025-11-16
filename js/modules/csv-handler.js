@@ -201,12 +201,12 @@ App.csvHandler = {
     );
   },
   
-  // Korrigierte CSV Download mit sauberer Tabellenformatierung (Semikolon-getrennt)
+  // Korrigierte CSV Download mit sauberer Tabellenformatierung (Tab-getrennt für beste Excel-Darstellung)
   downloadCSV(data, filename) {
     // BOM für UTF-8 Erkennung in Excel
     const BOM = '\uFEFF';
     
-    // CSV Zeilen mit Semikolon-Trennung (Excel-Standard für deutschsprachige Regionen)
+    // TSV (Tab-Separated Values) für beste Excel-Formatierung mit Zentrierung
     const csvLines = data.map(row => {
       return row.map(cell => {
         let cellValue = String(cell || "");
@@ -216,15 +216,14 @@ App.csvHandler = {
           cellValue = cellValue.replace(/"/g, '""');
         }
         
-        // Setze in Anführungszeichen wenn Sonderzeichen enthalten
-        if (cellValue.includes(';') || cellValue.includes(',') || 
-            cellValue.includes('"') || cellValue.includes('\n') || 
-            cellValue.includes('\r')) {
+        // Setze in Anführungszeichen wenn Sonderzeichen enthalten (außer Tab)
+        if (cellValue.includes('\t') || cellValue.includes('"') || 
+            cellValue.includes('\n') || cellValue.includes('\r')) {
           cellValue = `"${cellValue}"`;
         }
         
         return cellValue;
-      }).join(';'); // Semikolon als Trenner für Excel
+      }).join('\t'); // Tab als Trenner für optimale Excel-Formatierung
     });
     
     // CSV Content erstellen
