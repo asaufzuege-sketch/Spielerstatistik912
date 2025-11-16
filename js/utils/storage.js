@@ -1,26 +1,41 @@
-// LocalStorage Verwaltung
+// LocalStorage Verwaltung (Team-spezifisch)
 App.storage = {
+  // Aktuelle Team-ID ermitteln
+  getCurrentTeamId() {
+    return App.data.currentTeam || "team1";
+  },
+  
+  // Teamspezifische Storage Keys
+  getTeamStorageKey(key) {
+    return `${key}_${this.getCurrentTeamId()}`;
+  },
+  
   load() {
-    App.data.selectedPlayers = JSON.parse(localStorage.getItem("selectedPlayers")) || [];
-    App.data.statsData = JSON.parse(localStorage.getItem("statsData")) || {};
-    App.data.playerTimes = JSON.parse(localStorage.getItem("playerTimes")) || {};
-    App.data.seasonData = JSON.parse(localStorage.getItem("seasonData")) || {};
+    const teamId = this.getCurrentTeamId();
+    App.data.selectedPlayers = JSON.parse(localStorage.getItem(`selectedPlayers_${teamId}`)) || [];
+    App.data.statsData = JSON.parse(localStorage.getItem(`statsData_${teamId}`)) || {};
+    App.data.playerTimes = JSON.parse(localStorage.getItem(`playerTimes_${teamId}`)) || {};
+    App.data.seasonData = JSON.parse(localStorage.getItem(`seasonData_${teamId}`)) || {};
   },
   
   saveSelectedPlayers() {
-    localStorage.setItem("selectedPlayers", JSON.stringify(App.data.selectedPlayers));
+    const teamId = this.getCurrentTeamId();
+    localStorage.setItem(`selectedPlayers_${teamId}`, JSON.stringify(App.data.selectedPlayers));
   },
   
   saveStatsData() {
-    localStorage.setItem("statsData", JSON.stringify(App.data.statsData));
+    const teamId = this.getCurrentTeamId();
+    localStorage.setItem(`statsData_${teamId}`, JSON.stringify(App.data.statsData));
   },
   
   savePlayerTimes() {
-    localStorage.setItem("playerTimes", JSON.stringify(App.data.playerTimes));
+    const teamId = this.getCurrentTeamId();
+    localStorage.setItem(`playerTimes_${teamId}`, JSON.stringify(App.data.playerTimes));
   },
   
   saveSeasonData() {
-    localStorage.setItem("seasonData", JSON.stringify(App.data.seasonData));
+    const teamId = this.getCurrentTeamId();
+    localStorage.setItem(`seasonData_${teamId}`, JSON.stringify(App.data.seasonData));
   },
   
   saveAll() {

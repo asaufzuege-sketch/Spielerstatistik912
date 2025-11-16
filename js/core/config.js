@@ -8,8 +8,7 @@ const App = {
   // Daten
   data: {
     players: [
-      { num: 4, name: "Ondrej Kastner" }, { num: 5, name: "Raphael Oehninger" },
-      { num: 6, name: "Nuno Meier" }, { num: 7, name: "Silas Teuber" },
+      { num: 7, name: "Silas Teuber" },
       { num: 8, name: "Diego Warth" }, { num: 9, name: "Mattia Crameri" },
       { num: 10, name: "Mael Bernath" }, { num: 11, name: "Sean Nef" },
       { num: 12, name: "Rafael Burri" }, { num: 13, name: "Lenny Schwarz" },
@@ -18,8 +17,7 @@ const App = {
       { num: 18, name: "Livio Berner" }, { num: 19, name: "Robin Strasser" },
       { num: 21, name: "Marlon Kreyenbühl" }, { num: 22, name: "Martin Lana" },
       { num: 23, name: "Manuel Isler" }, { num: 24, name: "Moris Hürlimann" },
-      { num: "", name: "Levi Baumann" }, { num: "", name: "Corsin Blapp" },
-      { num: "", name: "Lenny Zimmermann" }, { num: "", name: "Luke Böhmichen" },
+      { num: "", name: "Luke Böhmichen" },
       { num: "", name: "Livio Weissen" }, { num: "", name: "Raul Wütrich" },
       { num: "", name: "Marco Senn" }
     ],
@@ -137,9 +135,10 @@ const App = {
       // Lazy-initialize pages wenn noch nicht geschehen
       if (!this.pages || Object.keys(this.pages).length === 0) {
         this.pages = {
+          teamSelection: document.getElementById("teamSelectionPage"),
           selection: document.getElementById("playerSelectionPage"),
           stats: document.getElementById("statsPage"),
-            torbild: document.getElementById("torbildPage"),
+          torbild: document.getElementById("torbildPage"),
           goalValue: document.getElementById("goalValuePage"),
           season: document.getElementById("seasonPage"),
           seasonMap: document.getElementById("seasonMapPage")
@@ -167,6 +166,7 @@ const App = {
       
       // Title setzen
       const titles = {
+        teamSelection: "Team Auswahl",
         selection: "Spielerauswahl",
         stats: "Statistiken",
         torbild: "Goal Map",
