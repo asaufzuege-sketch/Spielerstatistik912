@@ -142,29 +142,44 @@ App.goalMap = {
         isLong = false;
       });
       
-      // Touch Events - Optimiert für Touch-Displays
+      // Touch Events - Neues intuitives System
       let touchStartTime = 0;
       let touchMoved = false;
+      let touchStartPos = null;
       
       img.addEventListener("touchstart", (ev) => {
         isLong = false;
         touchMoved = false;
         touchStartTime = Date.now();
+        touchStartPos = getPosFromEvent(ev.touches[0]);
+        
         if (mouseHoldTimer) clearTimeout(mouseHoldTimer);
+        
+        // Timer für langes Drücken (Grauer Punkt)
         mouseHoldTimer = setTimeout(() => {
           isLong = true;
           if (!touchMoved) {
-            placeMarker(getPosFromEvent(ev.touches[0]), true);
+            placeMarker(touchStartPos, true); // Grauer Punkt
           }
         }, App.markerHandler.LONG_MARK_MS);
       }, { passive: true });
       
       img.addEventListener("touchmove", (ev) => {
         // Bei Bewegung als "moved" markieren
-        touchMoved = true;
-        if (mouseHoldTimer && touchMoved) {
-          clearTimeout(mouseHoldTimer);
-          mouseHoldTimer = null;
+        const currentPos = getPosFromEvent(ev.touches[0]);
+        const startPos = touchStartPos || currentPos;
+        
+        // Berechne Bewegungsdistanz in Prozent
+        const dx = Math.abs(currentPos.xPctContainer - startPos.xPctContainer);
+        const dy = Math.abs(currentPos.yPctContainer - startPos.yPctContainer);
+        
+        // Wenn mehr als 2% Bewegung, als "moved" markieren
+        if (dx > 2 || dy > 2) {
+          touchMoved = true;
+          if (mouseHoldTimer) {
+            clearTimeout(mouseHoldTimer);
+            mouseHoldTimer = null;
+          }
         }
       }, { passive: true });
       
@@ -181,20 +196,50 @@ App.goalMap = {
         // Ignoriere wenn Finger bewegt wurde (Streichen)
         if (touchMoved) {
           isLong = false;
+          touchMoved = false;
           return;
         }
         
-        // Doppelklick-Erkennung
-        if (now - lastTouchEnd < 300) {
-          placeMarker(pos, true, true);
+        // Prüfe ob auf existierenden Marker geklickt wurde
+        const markers = box.querySelectorAll('.marker-dot');
+        let clickedMarker = null;
+        
+        markers.forEach(marker => {
+          const markerRect = marker.getBoundingClientRect();
+          const boxRect = box.getBoundingClientRect();
+          
+          // Berechne Marker-Position in Prozent
+          const markerLeft = parseFloat(marker.style.left);
+          const markerTop = parseFloat(marker.style.top);
+          
+          // Prüfe ob Touch in der Nähe des Markers ist (±3%)
+          const dx = Math.abs(pos.xPctContainer - markerLeft);
+          const dy = Math.abs(pos.yPctContainer - markerTop);
+          
+          if (dx < 3 && dy < 3) {
+            clickedMarker = marker;
+          }
+        });
+        
+        // Wenn auf Marker geklickt, entfernen
+        if (clickedMarker && !isLong) {
+          clickedMarker.remove();
+          lastTouchEnd = 0;
+          isLong = false;
+          touchMoved = false;
+          return;
+        }
+        
+        // Doppel-Touch-Erkennung für normalen Punkt
+        if (now - lastTouchEnd < 400) {
+          placeMarker(pos, false); // Normaler farbiger Punkt (grün/rot)
           lastTouchEnd = 0;
         } else {
-          // Normaler Touch - sofort Marker setzen wenn kurz
-          if (!isLong && touchDuration < App.markerHandler.LONG_MARK_MS) {
-            placeMarker(pos, false);
-          }
+          // Einzelner Touch ohne langes Drücken - nichts tun
+          // (nur Double-Touch oder langes Drücken setzen Marker)
           lastTouchEnd = now;
         }
+        
         isLong = false;
         touchMoved = false;
       }, { passive: true });
