@@ -540,8 +540,11 @@ App.seasonTable = {
   reset() {
     if (!confirm("Season-Daten löschen?")) return;
 
+    // Teamspezifisch löschen
+    const teamId = App.teamSelection ? App.teamSelection.getCurrentTeamInfo().id : App.storage.getCurrentTeamId();
+    
     App.data.seasonData = {};
-    localStorage.removeItem("seasonData");
+    localStorage.removeItem(`seasonData_${teamId}`);
     this.render();
     alert("Season-Daten gelöscht.");
   }
