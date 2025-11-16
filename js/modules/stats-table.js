@@ -1,4 +1,4 @@
-// Stats Table Modul
+// Stats Table Module mit teamspezifischer Datenverwaltung
 App.statsTable = {
   container: null,
   dragState: {
@@ -114,9 +114,10 @@ App.statsTable = {
       td.dataset.cat = c;
       td.textContent = "0";
       
-      // Gegner-Schüsse aus LocalStorage wiederherstellen
+      // Teamspezifische Gegner-Schüsse aus LocalStorage wiederherstellen
       if (c === "Shot") {
-        const savedOppShots = localStorage.getItem("opponentShots");
+        const teamId = App.teamSelection.getCurrentTeamInfo().id;
+        const savedOppShots = localStorage.getItem(`opponentShots_${teamId}`);
         if (savedOppShots) {
           td.dataset.opp = savedOppShots;
         } else {
@@ -310,8 +311,8 @@ App.statsTable = {
     
     console.log(`Player "${player.name}" moved from position ${oldIndex} to ${newIndex}`);
     
-    // Save to localStorage
-    App.storage.saveSelectedPlayers();
+    // Teamspezifisch speichern
+    this.saveToStorage();
     
     // Re-render to update indices and alternating row colors
     this.render();
@@ -332,16 +333,16 @@ App.statsTable = {
         tr.style.background = "";
         nameTd.style.background = "";
         
-        // Timer State speichern
-        App.saveActiveTimersState();
+        // Timer State teamspezifisch speichern
+        this.saveActiveTimersState();
       } else {
         // Timer über App-Funktion starten (für Persistenz)
         App.startPlayerTimer(playerName);
         tr.style.background = "#005c2f";
         nameTd.style.background = "#005c2f";
         
-        // Timer State speichern
-        App.saveActiveTimersState();
+        // Timer State teamspezifisch speichern
+        this.saveActiveTimersState();
       }
     });
   },
@@ -392,7 +393,8 @@ App.statsTable = {
     App.data.statsData[player][cat] = (App.data.statsData[player][cat] || 0) + delta;
     App.data.statsData[player][cat] = Math.trunc(App.data.statsData[player][cat]);
     
-    App.storage.saveStatsData();
+    // Teamspezifisch speichern
+    this.saveToStorage();
     
     td.textContent = App.data.statsData[player][cat];
     
@@ -440,8 +442,9 @@ App.statsTable = {
         tc.onclick = () => {
           tc.dataset.opp = String(Number(tc.dataset.opp || 0) + 1);
           
-          // Gegner-Schüsse in LocalStorage speichern
-          localStorage.setItem("opponentShots", tc.dataset.opp);
+          // Gegner-Schüsse teamspezifisch in LocalStorage speichern
+          const teamId = App.teamSelection.getCurrentTeamInfo().id;
+          localStorage.setItem(`opponentShots_${teamId}`, tc.dataset.opp);
           
           this.updateTotals();
         };
@@ -497,24 +500,44 @@ App.statsTable = {
     });
   },
   
+  // Teamspezifische Speicherfunktionen
+  saveToStorage() {
+    const teamId = App.teamSelection.getCurrentTeamInfo().id;
+    localStorage.setItem(`selectedPlayers_${teamId}`, JSON.stringify(App.data.selectedPlayers));
+    localStorage.setItem(`statsData_${teamId}`, JSON.stringify(App.data.statsData));
+    localStorage.setItem(`playerTimes_${teamId}`, JSON.stringify(App.data.playerTimes));
+  },
+  
+  saveActiveTimersState() {
+    const teamId = App.teamSelection.getCurrentTeamInfo().id;
+    const activeTimerPlayers = Object.keys(App.data.activeTimers);
+    localStorage.setItem(`activeTimerPlayers_${teamId}`, JSON.stringify(activeTimerPlayers));
+  },
+  
+  // Reset nur für aktuelles Team
   reset() {
-    if (!confirm("Spieldaten zurücksetzen?")) return;
-    
-    App.data.statsData = {};
-    App.data.playerTimes = {};
-    
-    // Timer stoppen und aus LocalStorage entfernen
-    Object.values(App.data.activeTimers).forEach(timer => {
-      if (timer) clearInterval(timer);
-    });
-    App.data.activeTimers = {};
-    
-    localStorage.removeItem("statsData");
-    localStorage.removeItem("playerTimes");
-    localStorage.removeItem("activeTimerPlayers");
-    localStorage.removeItem("opponentShots");
-    
-    this.render();
-    alert("Spieldaten zurückgesetzt.");
+    if (!App.teamSelection || !App.teamSelection.resetCurrentTeam()) {
+      // Fallback für direkten Reset
+      if (!confirm("Spieldaten zurücksetzen?")) return;
+      
+      App.data.statsData = {};
+      App.data.playerTimes = {};
+      
+      // Timer stoppen und aus LocalStorage entfernen
+      Object.values(App.data.activeTimers).forEach(timer => {
+        if (timer) clearInterval(timer);
+      });
+      App.data.activeTimers = {};
+      
+      // Teamspezifisch löschen
+      const teamId = App.teamSelection ? App.teamSelection.getCurrentTeamInfo().id : 'team1';
+      localStorage.removeItem(`statsData_${teamId}`);
+      localStorage.removeItem(`playerTimes_${teamId}`);
+      localStorage.removeItem(`activeTimerPlayers_${teamId}`);
+      localStorage.removeItem(`opponentShots_${teamId}`);
+      
+      this.render();
+      alert("Spieldaten zurückgesetzt.");
+    }
   }
 };
