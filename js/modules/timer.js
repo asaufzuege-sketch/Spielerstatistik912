@@ -56,6 +56,7 @@ App.timer = {
     
     let holdTimer = null;
     let longPress = false;
+    let touchHandled = false; // Flag um Touch-Events zu tracken
     const LONG_MS = 800;
     
     this.btn.addEventListener("mousedown", () => {
@@ -74,7 +75,8 @@ App.timer = {
       if (holdTimer) clearTimeout(holdTimer);
     });
     
-    this.btn.addEventListener("touchstart", () => {
+    this.btn.addEventListener("touchstart", (e) => {
+      touchHandled = true;
       longPress = false;
       holdTimer = setTimeout(() => {
         this.reset();
@@ -82,11 +84,28 @@ App.timer = {
       }, LONG_MS);
     }, { passive: true });
     
-    this.btn.addEventListener("touchend", () => {
+    this.btn.addEventListener("touchend", (e) => {
       if (holdTimer) clearTimeout(holdTimer);
+      
+      // Verhindere Ghost Click nach Touch
+      setTimeout(() => {
+        touchHandled = false;
+      }, 500);
+      
+      // Bei Touch direkt hier den Toggle ausführen
+      if (!longPress) {
+        if (this.interval) this.stop();
+        else this.start();
+      }
+      longPress = false;
     }, { passive: true });
     
-    this.btn.addEventListener("click", () => {
+    this.btn.addEventListener("click", (e) => {
+      // Ignoriere Click wenn gerade Touch behandelt wurde
+      if (touchHandled) {
+        return;
+      }
+      
       if (longPress) {
         longPress = false;
         return;
