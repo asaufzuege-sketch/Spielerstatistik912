@@ -57,6 +57,23 @@ App.csvHandler = {
     }
   },
   
+  // Hilfsfunktion um sauberen Text aus HTML zu extrahieren
+  getCleanTextFromElement(element) {
+    if (!element) return '';
+    
+    // Erstelle temporäres Element zum sauberen Text-Extraktion
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = element.innerHTML;
+    
+    // Extrahiere nur den Text, keine HTML-Tags
+    let text = tempDiv.textContent || tempDiv.innerText || '';
+    
+    // Bereinige Whitespace
+    text = text.trim().replace(/\s+/g, ' ');
+    
+    return text;
+  },
+  
   exportStats() {
     const data = [];
     const headers = ["#", "Spieler", ...App.data.categories, "Time"];
@@ -73,7 +90,7 @@ App.csvHandler = {
       data.push(row);
     });
     
-    // Totals Row - wieder wie vorher aber Shot-Zelle von Tabelle übernehmen
+    // Totals Row - saubere Textextraktion
     const totals = ["", `Total (${App.data.selectedPlayers.length})`];
     
     App.data.categories.forEach(cat => {
@@ -87,16 +104,16 @@ App.csvHandler = {
         const pct = totalFace ? Math.round((totalWon / totalFace) * 100) : 0;
         totals.push(`${totalWon} (${pct}%)`);
       } else if (cat === "Shot") {
-        // Shot-Zelle 1:1 aus der Tabelle übernehmen
+        // Shot-Zelle sauber aus Tabelle extrahieren
         const shotCell = document.querySelector('.total-cell[data-cat="Shot"]');
-        if (shotCell && shotCell.textContent) {
-          // Textinhalt der Zelle nehmen, aber HTML-Tags entfernen
-          const tempDiv = document.createElement('div');
-          tempDiv.innerHTML = shotCell.innerHTML;
-          totals.push(tempDiv.textContent || tempDiv.innerText || '');
+        if (shotCell) {
+          const cleanText = this.getCleanTextFromElement(shotCell);
+          totals.push(cleanText);
         } else {
-          const total = App.data.selectedPlayers.reduce((sum, p) => sum + (App.data.statsData[p.name]?.[cat] || 0), 0);
-          totals.push(total);
+          // Fallback: manuelle Berechnung
+          const own = App.data.selectedPlayers.reduce((sum, p) => sum + (App.data.statsData[p.name]?.["Shot"] || 0), 0);
+          const opp = App.statsTable.getOpponentShots() || 0;
+          totals.push(`${own} vs ${opp}`);
         }
       } else {
         const total = App.data.selectedPlayers.reduce((sum, p) => sum + (App.data.statsData[p.name]?.[cat] || 0), 0);
