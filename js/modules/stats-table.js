@@ -113,6 +113,17 @@ App.statsTable = {
       td.className = "total-cell";
       td.dataset.cat = c;
       td.textContent = "0";
+      
+      // Gegner-Schüsse aus LocalStorage wiederherstellen
+      if (c === "Shot") {
+        const savedOppShots = localStorage.getItem("opponentShots");
+        if (savedOppShots) {
+          td.dataset.opp = savedOppShots;
+        } else {
+          td.dataset.opp = "0";
+        }
+      }
+      
       totalTr.appendChild(td);
     });
     
@@ -131,6 +142,9 @@ App.statsTable = {
     // Update Totals & Colors
     this.updateTotals();
     this.updateIceTimeColors();
+    
+    // Timer visuals wiederherstellen
+    App.updateTimerVisuals();
   },
   
   attachDragHandlers(row, dragHandle) {
@@ -317,19 +331,17 @@ App.statsTable = {
         delete App.data.activeTimers[playerName];
         tr.style.background = "";
         nameTd.style.background = "";
-      } else {
-        // Timer starten
-        App.data.activeTimers[playerName] = setInterval(() => {
-          App.data.playerTimes[playerName] = (App.data.playerTimes[playerName] || 0) + 1;
-          App.storage.savePlayerTimes();
-          
-          const sec = App.data.playerTimes[playerName];
-          timeTd.textContent = App.helpers.formatTimeMMSS(sec);
-          this.updateIceTimeColors();
-        }, 1000);
         
+        // Timer State speichern
+        App.saveActiveTimersState();
+      } else {
+        // Timer über App-Funktion starten (für Persistenz)
+        App.startPlayerTimer(playerName);
         tr.style.background = "#005c2f";
         nameTd.style.background = "#005c2f";
+        
+        // Timer State speichern
+        App.saveActiveTimersState();
       }
     });
   },
@@ -427,6 +439,10 @@ App.statsTable = {
         tc.innerHTML = `<span style="color:${ownC}">${own}</span> <span style="color:white">vs</span> <span style="color:${oppC}">${opp}</span>`;
         tc.onclick = () => {
           tc.dataset.opp = String(Number(tc.dataset.opp || 0) + 1);
+          
+          // Gegner-Schüsse in LocalStorage speichern
+          localStorage.setItem("opponentShots", tc.dataset.opp);
+          
           this.updateTotals();
         };
       } else {
@@ -436,6 +452,28 @@ App.statsTable = {
         tc.style.color = val > 0 ? colors.pos : val < 0 ? colors.neg : colors.zero;
       }
     });
+  },
+  
+  // Funktion um Gegner-Schüsse für Export zu erhalten
+  getOpponentShots() {
+    const shotCell = document.querySelector('.total-cell[data-cat="Shot"]');
+    return shotCell ? (Number(shotCell.dataset.opp) || 0) : 0;
+  },
+  
+  // Funktion um Shot Total String für Export zu erhalten
+  getShotTotalString() {
+    const totals = {};
+    App.data.categories.forEach(c => totals[c] = 0);
+    
+    App.data.selectedPlayers.forEach(p => {
+      App.data.categories.forEach(c => {
+        totals[c] += Number(App.data.statsData[p.name]?.[c] || 0);
+      });
+    });
+    
+    const own = totals["Shot"] || 0;
+    const opp = this.getOpponentShots();
+    return `${own} vs ${opp}`;
   },
   
   updateIceTimeColors() {
@@ -464,8 +502,17 @@ App.statsTable = {
     
     App.data.statsData = {};
     App.data.playerTimes = {};
+    
+    // Timer stoppen und aus LocalStorage entfernen
+    Object.values(App.data.activeTimers).forEach(timer => {
+      if (timer) clearInterval(timer);
+    });
+    App.data.activeTimers = {};
+    
     localStorage.removeItem("statsData");
     localStorage.removeItem("playerTimes");
+    localStorage.removeItem("activeTimerPlayers");
+    localStorage.removeItem("opponentShots");
     
     this.render();
     alert("Spieldaten zurückgesetzt.");
