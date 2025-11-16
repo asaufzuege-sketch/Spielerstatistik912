@@ -142,14 +142,30 @@ App.goalMap = {
         isLong = false;
       });
       
-      // Touch Events
+      // Touch Events - Optimiert für Touch-Displays
+      let touchStartTime = 0;
+      let touchMoved = false;
+      
       img.addEventListener("touchstart", (ev) => {
         isLong = false;
+        touchMoved = false;
+        touchStartTime = Date.now();
         if (mouseHoldTimer) clearTimeout(mouseHoldTimer);
         mouseHoldTimer = setTimeout(() => {
           isLong = true;
-          placeMarker(getPosFromEvent(ev.touches[0]), true);
+          if (!touchMoved) {
+            placeMarker(getPosFromEvent(ev.touches[0]), true);
+          }
         }, App.markerHandler.LONG_MARK_MS);
+      }, { passive: true });
+      
+      img.addEventListener("touchmove", (ev) => {
+        // Bei Bewegung als "moved" markieren
+        touchMoved = true;
+        if (mouseHoldTimer && touchMoved) {
+          clearTimeout(mouseHoldTimer);
+          mouseHoldTimer = null;
+        }
       }, { passive: true });
       
       img.addEventListener("touchend", (ev) => {
@@ -157,17 +173,30 @@ App.goalMap = {
           clearTimeout(mouseHoldTimer);
           mouseHoldTimer = null;
         }
+        
         const now = Date.now();
+        const touchDuration = now - touchStartTime;
         const pos = getPosFromEvent(ev.changedTouches[0]);
         
+        // Ignoriere wenn Finger bewegt wurde (Streichen)
+        if (touchMoved) {
+          isLong = false;
+          return;
+        }
+        
+        // Doppelklick-Erkennung
         if (now - lastTouchEnd < 300) {
           placeMarker(pos, true, true);
           lastTouchEnd = 0;
         } else {
-          if (!isLong) placeMarker(pos, false);
+          // Normaler Touch - sofort Marker setzen wenn kurz
+          if (!isLong && touchDuration < App.markerHandler.LONG_MARK_MS) {
+            placeMarker(pos, false);
+          }
           lastTouchEnd = now;
         }
         isLong = false;
+        touchMoved = false;
       }, { passive: true });
       
       img.addEventListener("touchcancel", () => {
@@ -176,6 +205,7 @@ App.goalMap = {
           mouseHoldTimer = null;
         }
         isLong = false;
+        touchMoved = false;
       }, { passive: true });
     });
   },

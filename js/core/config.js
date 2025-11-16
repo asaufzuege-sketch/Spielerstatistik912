@@ -8,8 +8,7 @@ const App = {
   // Daten
   data: {
     players: [
-      { num: 4, name: "Ondrej Kastner" }, { num: 5, name: "Raphael Oehninger" },
-      { num: 6, name: "Nuno Meier" }, { num: 7, name: "Silas Teuber" },
+      { num: 7, name: "Silas Teuber" },
       { num: 8, name: "Diego Warth" }, { num: 9, name: "Mattia Crameri" },
       { num: 10, name: "Mael Bernath" }, { num: 11, name: "Sean Nef" },
       { num: 12, name: "Rafael Burri" }, { num: 13, name: "Lenny Schwarz" },

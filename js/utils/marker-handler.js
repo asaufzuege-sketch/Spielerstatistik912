@@ -1,6 +1,6 @@
 // Marker & Image Sampling
 App.markerHandler = {
-  LONG_MARK_MS: 600,
+  LONG_MARK_MS: 300,  // Reduziert von 600ms auf 300ms für bessere Touch-Responsivität
   samplerCache: new WeakMap(),
   
   clampPct(v) {
