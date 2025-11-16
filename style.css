@@ -829,7 +829,7 @@ th .sort-arrow { font-size: 0.7rem; color: #ddd }
   background: #36a67d;
 }
 
-/* Modal Styles */
+/* Modal Styles - Korrigiert für gleiche Höhe */
 .modal {
   position: fixed;
   top: 0;
@@ -879,6 +879,7 @@ th .sort-arrow { font-size: 0.7rem; color: #ddd }
   display: flex;
   gap: 10px;
   justify-content: center;
+  align-items: stretch; /* Wichtig für gleiche Höhe */
   width: 100%;
 }
 
@@ -897,24 +898,58 @@ th .sort-arrow { font-size: 0.7rem; color: #ddd }
   justify-content: center;
   box-sizing: border-box;
   min-width: 0;
+  margin: 0; /* Entfernt eventuell vererbte Margins */
+  line-height: 1; /* Konsistente Zeilenhöhe */
+  vertical-align: top; /* Gleiche Baseline */
 }
 
-.modal-buttons .confirm-btn {
+#saveTeamNameBtn {
   background: #44bb91;
   color: white;
 }
 
-.modal-buttons .confirm-btn:hover {
+#saveTeamNameBtn:hover {
   background: #36a67d;
 }
 
-.modal-buttons .cancel-btn {
+#cancelTeamEditBtn {
   background: #666;
   color: white;
 }
 
-.modal-buttons .cancel-btn:hover {
+#cancelTeamEditBtn:hover {
   background: #777;
+}
+
+/* Überschreibt eventuelle confirm-btn Styles für Modal */
+.modal-buttons .confirm-btn {
+  background: #44bb91 !important;
+  color: white !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 44px !important;
+  flex: 1 !important;
+}
+
+.modal-buttons .confirm-btn:hover {
+  background: #36a67d !important;
+}
+
+.modal-buttons .cancel-btn {
+  background: #666 !important;
+  color: white !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 44px !important;
+  flex: 1 !important;
+}
+
+.modal-buttons .cancel-btn:hover {
+  background: #777 !important;
 }
 
 /* Current Team Info */
@@ -1012,10 +1047,12 @@ img, .torbild-box img, .time-btn, td[data-player][data-cat] {
   .modal-buttons {
     flex-direction: row !important;
     gap: 10px;
+    align-items: stretch !important;
   }
   
   .modal-buttons button {
     flex: 1;
     min-width: 0;
+    height: 44px !important;
   }
 }
