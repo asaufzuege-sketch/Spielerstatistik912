@@ -137,9 +137,10 @@ const App = {
       // Lazy-initialize pages wenn noch nicht geschehen
       if (!this.pages || Object.keys(this.pages).length === 0) {
         this.pages = {
+          teamSelection: document.getElementById("teamSelectionPage"),
           selection: document.getElementById("playerSelectionPage"),
           stats: document.getElementById("statsPage"),
-            torbild: document.getElementById("torbildPage"),
+          torbild: document.getElementById("torbildPage"),
           goalValue: document.getElementById("goalValuePage"),
           season: document.getElementById("seasonPage"),
           seasonMap: document.getElementById("seasonMapPage")
@@ -167,6 +168,7 @@ const App = {
       
       // Title setzen
       const titles = {
+        teamSelection: "Team Auswahl",
         selection: "Spielerauswahl",
         stats: "Statistiken",
         torbild: "Goal Map",
