@@ -7,6 +7,83 @@ App.teamSelection = {
     this.container = document.getElementById("teamSelectionContainer");
     this.createTeamButtons();
     this.initTeamFromStorage();
+    this.setupHTMLTeamButtons();
+    this.setupEditButtons();
+  },
+  
+  setupHTMLTeamButtons() {
+    // Setup event listeners for the HTML team buttons (teamBtn1, teamBtn2, teamBtn3)
+    for (let i = 1; i <= 3; i++) {
+      const btn = document.getElementById(`teamBtn${i}`);
+      if (btn) {
+        btn.addEventListener("click", () => {
+          this.selectTeamAndNavigate(i);
+        });
+      }
+    }
+  },
+  
+  setupEditButtons() {
+    // Setup event listeners for the edit buttons
+    const modal = document.getElementById("teamEditModal");
+    const input = document.getElementById("teamNameInput");
+    const saveBtn = document.getElementById("saveTeamNameBtn");
+    const cancelBtn = document.getElementById("cancelTeamEditBtn");
+    let currentEditingTeam = null;
+    
+    // Edit button handlers
+    for (let i = 1; i <= 3; i++) {
+      const editBtn = document.getElementById(`editBtn${i}`);
+      if (editBtn) {
+        editBtn.addEventListener("click", () => {
+          currentEditingTeam = i;
+          const teamNameSpan = document.getElementById(`teamName${i}`);
+          input.value = teamNameSpan?.textContent || `Team ${i}`;
+          modal.style.display = "flex";
+        });
+      }
+    }
+    
+    // Save button handler
+    if (saveBtn) {
+      saveBtn.addEventListener("click", () => {
+        if (currentEditingTeam && input.value.trim()) {
+          const teamNameSpan = document.getElementById(`teamName${currentEditingTeam}`);
+          if (teamNameSpan) {
+            teamNameSpan.textContent = input.value.trim();
+            localStorage.setItem(`teamName${currentEditingTeam}`, input.value.trim());
+          }
+          modal.style.display = "none";
+        }
+      });
+    }
+    
+    // Cancel button handler
+    if (cancelBtn) {
+      cancelBtn.addEventListener("click", () => {
+        modal.style.display = "none";
+      });
+    }
+    
+    // Load saved team names
+    for (let i = 1; i <= 3; i++) {
+      const savedName = localStorage.getItem(`teamName${i}`);
+      if (savedName) {
+        const teamNameSpan = document.getElementById(`teamName${i}`);
+        if (teamNameSpan) {
+          teamNameSpan.textContent = savedName;
+        }
+      }
+    }
+  },
+  
+  selectTeamAndNavigate(teamNumber) {
+    // Switch to the selected team
+    if (teamNumber !== this.currentTeam) {
+      this.switchTeam(teamNumber);
+    }
+    // Navigate to player selection page
+    App.showPage("selection");
   },
   
   createTeamButtons() {
