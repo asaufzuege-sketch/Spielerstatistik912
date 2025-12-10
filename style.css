@@ -661,21 +661,40 @@ th .sort-arrow { font-size: 0.7rem; color: #ddd }
     font-size: 1.3rem;
   }
   
-  .top-bar {
-    flex-wrap: wrap;
-    gap: 6px;
+  /* Top-Bar komplett überarbeiten für Mobile */
+  .top-bar,
+  #statsPage .top-bar {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px !important;
+    flex-wrap: unset !important;
+    justify-content: unset !important;
+    overflow-x: visible !important;
   }
   
-  .top-btn, .import-csv-btn {
-    min-width: 100px;
-    font-size: 0.8rem;
-    padding: 6px 10px;
-    height: 36px;
+  .top-btn, 
+  .import-csv-btn,
+  #statsPage .top-btn,
+  #statsPage .import-csv-btn {
+    flex: unset !important;
+    min-width: unset !important;
+    width: 100% !important;
+    font-size: 0.7rem !important;
+    padding: 8px 4px !important;
+    height: 40px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
   }
   
   .timer {
-    font-size: 1rem;
-    padding: 8px 12px;
+    font-size: 0.9rem !important;
+    padding: 8px 6px !important;
+  }
+  
+  /* Reset Button volle Breite */
+  .top-btn.danger-btn {
+    grid-column: span 3;
   }
   
   .team-selection-container {
