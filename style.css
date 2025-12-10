@@ -643,11 +643,231 @@ th .sort-arrow { font-size: 0.7rem; color: #ddd }
   font-size: 11px;
 }
 
-@media (max-width: 900px) {
-  .torbild-layout { flex-direction: column; height: auto; }
-  .goalvalue-title-input { font-size: 0.85rem; }
-  .top-bar { gap: 6px; }
-  .top-btn, .import-csv-btn { min-width: 120px; }
+/* ==================== */
+/* RESPONSIVE MEDIA QUERIES */
+/* ==================== */
+
+/* Mobile Devices */
+@media (max-width: 575.98px) {
+  body {
+    padding: 10px;
+  }
+  
+  .page {
+    max-width: 100%;
+  }
+  
+  h1 {
+    font-size: 1.3rem;
+  }
+  
+  .top-bar {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  
+  .top-btn, .import-csv-btn {
+    min-width: 100px;
+    font-size: 0.8rem;
+    padding: 6px 10px;
+    height: 36px;
+  }
+  
+  .timer {
+    font-size: 1rem;
+    padding: 8px 12px;
+  }
+  
+  .team-selection-container {
+    padding: 10px;
+  }
+  
+  .team-slot {
+    flex-direction: column;
+    gap: 12px;
+    padding: 15px;
+    position: relative;
+    text-align: center;
+  }
+  
+  .team-btn {
+    width: 100%;
+    padding: 10px 16px;
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+  
+  .edit-team-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+  
+  .player-list li {
+    padding: 6px 10px;
+  }
+  
+  table {
+    font-size: 0.8rem;
+  }
+  
+  th, td {
+    padding: 4px 3px;
+  }
+  
+  .torbild-layout {
+    flex-direction: column;
+    height: auto;
+    gap: 15px;
+  }
+  
+  .time-tracking-box {
+    font-size: 0.85rem;
+  }
+  
+  .period {
+    column-gap: 8px;
+  }
+  
+  .time-btn {
+    height: 24px;
+    font-size: 11px;
+  }
+  
+  .modal-content {
+    padding: 20px;
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .confirm-btn {
+    padding: 10px 18px;
+    font-size: 1rem;
+    min-width: 160px;
+  }
+  
+  .goalvalue-title-input {
+    font-size: 0.85rem;
+  }
+  
+  .drag-handle {
+    font-size: 18px;
+    margin-right: 10px !important;
+    padding: 2px;
+  }
+  
+  .modal-buttons {
+    flex-direction: row !important;
+    gap: 10px;
+    align-items: stretch !important;
+  }
+  
+  .modal-buttons button {
+    flex: 1;
+    min-width: 0;
+    height: 44px !important;
+  }
+}
+
+/* Small Tablets */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  body {
+    padding: 15px;
+  }
+  
+  .top-btn, .import-csv-btn {
+    min-width: 110px;
+    font-size: 0.85rem;
+  }
+  
+  .torbild-layout {
+    flex-direction: column;
+    height: auto;
+  }
+  
+  .team-slot {
+    flex-direction: row;
+  }
+}
+
+/* Tablet Devices */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  body {
+    padding: 18px;
+  }
+  
+  .page {
+    max-width: 900px;
+  }
+  
+  .top-bar {
+    gap: 8px;
+  }
+  
+  .top-btn, .import-csv-btn {
+    min-width: 120px;
+    font-size: 0.9rem;
+  }
+  
+  .torbild-layout {
+    gap: 18px;
+  }
+  
+  .team-selection-container {
+    max-width: 700px;
+  }
+  
+  table {
+    font-size: 0.9rem;
+  }
+}
+
+/* Desktop Devices */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .page {
+    max-width: 1000px;
+  }
+  
+  .top-bar {
+    gap: 10px;
+  }
+  
+  .team-selection-container {
+    max-width: 750px;
+  }
+  
+  .torbild-layout {
+    gap: 20px;
+  }
+}
+
+/* Extra Large Devices */
+@media (min-width: 1200px) {
+  .page {
+    max-width: 1100px;
+  }
+  
+  .top-bar {
+    gap: 12px;
+  }
+  
+  .team-selection-container {
+    max-width: 800px;
+  }
+  
+  .torbild-layout {
+    gap: 25px;
+    height: calc(100vh - 140px);
+  }
+  
+  table {
+    font-size: 0.95rem;
+  }
+  
+  .time-btn {
+    height: 28px;
+    font-size: 13px;
+  }
 }
 
 #statsPage .total-row td {
@@ -1021,38 +1241,4 @@ img, .torbild-box img, .time-btn, td[data-player][data-cat] {
   touch-action: manipulation !important;
 }
 
-/* Mobile Responsive für Teamauswahl */
-@media (max-width: 768px) {
-  .team-slot {
-    flex-direction: column;
-    text-align: center;
-    gap: 15px;
-  }
-  
-  .team-btn {
-    margin-right: 0;
-    margin-bottom: 10px;
-  }
-  
-  .modal-content {
-    margin: 20px;
-  }
-  
-  .drag-handle {
-    font-size: 18px;
-    margin-right: 10px !important;
-    padding: 2px;
-  }
-  
-  .modal-buttons {
-    flex-direction: row !important;
-    gap: 10px;
-    align-items: stretch !important;
-  }
-  
-  .modal-buttons button {
-    flex: 1;
-    min-width: 0;
-    height: 44px !important;
-  }
-}
+
