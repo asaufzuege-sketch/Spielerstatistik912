@@ -746,6 +746,10 @@ th .sort-arrow { font-size: 0.7rem; color: #ddd }
     min-width: 160px;
   }
   
+  .goalvalue-title-input {
+    font-size: 0.85rem;
+  }
+  
   .drag-handle {
     font-size: 18px;
     margin-right: 10px !important;
