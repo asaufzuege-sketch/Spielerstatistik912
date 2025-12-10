@@ -1,6 +1,6 @@
 // Haupt-App Initialisierung
 document.addEventListener("DOMContentLoaded", () => {
-  console.log(`Spielerstatistik App v${App.version} wird geladen...`);
+  console.log(`SmartHockey Tracking 1 Player v${App.version} wird geladen...`);
   
   // 1. Theme & Styles initialisieren
   App.initTheme();

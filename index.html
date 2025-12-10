@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Spielerstatistik</title>
+  <title>SmartHockey Tracking 1 Player</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="Create%20season_table_styles.css" />
+  <link rel="stylesheet" href="season_table_styles.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body>
@@ -44,6 +44,9 @@
           <button class="edit-team-btn" id="editBtn3">✏️</button>
         </div>
       </div>
+      
+      <!-- Container for dynamically created team buttons (if needed by JS) -->
+      <div id="teamSelectionContainer"></div>
     </div>
     
     <!-- Team Name Edit Modal -->
@@ -131,7 +134,7 @@
               <button class="time-btn">0</button><button class="time-btn">0</button>
             </div>
             <div class="period-numbers">
-              <span class=" num-center">19 - 15</span><span class="num-center">14 - 10</span>
+              <span class="num-center">19 - 15</span><span class="num-center">14 - 10</span>
               <span class="num-center">9 - 5</span><span class="num-center">4 - 0</span>
             </div>
             <div class="period-buttons bottom-row">
@@ -146,7 +149,7 @@
               <button class="time-btn">0</button><button class="time-btn">0</button>
             </div>
             <div class="period-numbers">
-              <span class=" num-center">19 - 15</span><span class="num-center">14 - 10</span>
+              <span class="num-center">19 - 15</span><span class="num-center">14 - 10</span>
               <span class="num-center">9 - 5</span><span class="num-center">4 - 0</span>
             </div>
             <div class="period-buttons bottom-row">
@@ -161,7 +164,7 @@
               <button class="time-btn">0</button><button class="time-btn">0</button>
             </div>
             <div class="period-numbers">
-              <span class=" num-center">19 - 15</span><span class="num-center">14 - 10</span>
+              <span class="num-center">19 - 15</span><span class="num-center">14 - 10</span>
               <span class="num-center">9 - 5</span><span class="num-center">4 - 0</span>
             </div>
             <div class="period-buttons bottom-row">
@@ -221,7 +224,7 @@
               <button class="time-btn">0</button><button class="time-btn">0</button>
             </div>
             <div class="period-numbers">
-              <span class=" num-center">19 - 15</span><span class="num-center">14 - 10</span>
+              <span class="num-center">19 - 15</span><span class="num-center">14 - 10</span>
               <span class="num-center">9 - 5</span><span class="num-center">4 - 0</span>
             </div>
             <div class="period-buttons bottom-row">

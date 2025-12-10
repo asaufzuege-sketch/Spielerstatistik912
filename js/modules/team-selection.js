@@ -294,5 +294,15 @@ App.teamSelection = {
       App.csvHandler.fileInput.dataset.target = "stats";
       App.csvHandler.fileInput.click();
     }
+  },
+  
+  // Get current team (required by app.js)
+  getCurrentTeam() {
+    return App.data.currentTeam || localStorage.getItem("currentTeam") || "team1";
+  },
+  
+  // Save teams (required by app.js)
+  saveTeams() {
+    this.saveCurrentTeamData();
   }
 };
